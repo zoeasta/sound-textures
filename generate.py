@@ -22,6 +22,7 @@ Specified parameters override random generation; unspecified ones stay random.
 import os
 import json
 import argparse
+from datetime import datetime
 import numpy as np
 from scipy.signal import butter, lfilter
 import soundfile as sf
@@ -135,12 +136,13 @@ def generate_batch(count=10, seed=None, overrides=None):
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     results = []
+    batch_id = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     for i in range(count):
         params = random_params()
         if overrides:
             params.update(overrides)
-        filename = f"texture_{i+1:03d}.wav"
+        filename = f"texture_{batch_id}_{i+1:03d}.wav"
         filepath = os.path.join(OUTPUT_DIR, filename)
 
         signal = generate_texture(params)

@@ -37,7 +37,15 @@ def insert_textures(manifest_path=MANIFEST_PATH):
     """
 
     count = 0
+    skipped = 0
     for t in textures:
+        # Skip if filename already exists in DB
+        cur.execute("SELECT 1 FROM textures WHERE filename = %s",
+                    (t["filename"],))
+        if cur.fetchone() is not None:
+            skipped += 1
+            continue
+
         cur.execute(insert_sql, (
             t["filename"],
             t["noise_type"],
@@ -51,7 +59,10 @@ def insert_textures(manifest_path=MANIFEST_PATH):
         count += 1
 
     conn.commit()
-    print(f"Inserted {count} textures into database.")
+    print(f"Inserted {count} textures into database.", end="")
+    if skipped:
+        print(f" ({skipped} duplicates skipped.)", end="")
+    print()
 
     cur.close()
     conn.close()
