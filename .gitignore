@@ -1,0 +1,6 @@
+output/*.wav
+output/manifest.json
+plots/*.png
+__pycache__/
+*.pyc
+.env
