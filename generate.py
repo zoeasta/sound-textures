@@ -15,6 +15,7 @@ Flags:
     --cutoff HZ          Lowpass filter cutoff in Hz (default: random 200-8000)
     --mod-rate HZ        LFO modulation rate in Hz (default: random 0.5-10)
     --mod-depth VAL      Modulation depth 0.0-1.0 (default: random 0.0-1.0)
+    --plot               Re-generate R analysis plots after generating
 
 Specified parameters override random generation; unspecified ones stay random.
 """
@@ -183,6 +184,8 @@ if __name__ == "__main__":
                         help="LFO modulation rate in Hz (default: random 0.5-10)")
     parser.add_argument("--mod-depth", type=float,
                         help="Modulation depth 0.0-1.0 (default: random 0.0-1.0)")
+    parser.add_argument("--plot", action="store_true",
+                        help="Re-generate R analysis plots after generating")
     args = parser.parse_args()
 
     overrides = {}
@@ -210,3 +213,17 @@ if __name__ == "__main__":
         insert_textures()
     except Exception as e:
         print(f"\nNote: DB insert skipped ({e})")
+
+    # Run R analysis if requested
+    if args.plot:
+        import subprocess
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        r_script = os.path.join(script_dir, "analyze.R")
+        try:
+            print("\nRunning R analysis...")
+            subprocess.run(
+                ["C:/Program Files/R/R-4.5.2/bin/Rscript.exe", r_script],
+                cwd=script_dir, check=True
+            )
+        except Exception as e:
+            print(f"Note: R analysis skipped ({e})")
