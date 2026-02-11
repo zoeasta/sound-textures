@@ -199,5 +199,12 @@ if __name__ == "__main__":
     if args.mod_depth is not None:
         overrides["mod_depth"] = args.mod_depth
 
-    generate_batch(count=args.count, seed=args.seed,
-                   overrides=overrides if overrides else None)
+    results = generate_batch(count=args.count, seed=args.seed,
+                             overrides=overrides if overrides else None)
+
+    # Auto-insert into database
+    try:
+        from db_insert import insert_textures
+        insert_textures()
+    except Exception as e:
+        print(f"\nNote: DB insert skipped ({e})")
