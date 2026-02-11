@@ -110,8 +110,9 @@ def random_params():
     }
 
 
-def generate_batch(count=10, seed=None):
-    """Generate a batch of textures, returning list of (filename, params)."""
+def generate_batch(count=10, seed=None, overrides=None):
+    """Generate a batch of textures, returning list of (filename, params).
+    overrides: dict of parameter values that override random generation."""
     if seed is not None:
         np.random.seed(seed)
 
@@ -120,6 +121,8 @@ def generate_batch(count=10, seed=None):
 
     for i in range(count):
         params = random_params()
+        if overrides:
+            params.update(overrides)
         filename = f"texture_{i+1:03d}.wav"
         filepath = os.path.join(OUTPUT_DIR, filename)
 
@@ -147,6 +150,37 @@ if __name__ == "__main__":
                         help="Number of textures to generate (default: 10)")
     parser.add_argument("-s", "--seed", type=int, default=None,
                         help="Random seed for reproducibility")
+    parser.add_argument("--noise", choices=["white", "pink", "brown"],
+                        help="Noise type (default: random)")
+    parser.add_argument("--freq", type=float,
+                        help="Base frequency in Hz (default: random 50-500)")
+    parser.add_argument("--duration", type=float,
+                        help="Duration in seconds (default: random 2-8)")
+    parser.add_argument("--amplitude", type=float,
+                        help="Amplitude 0.0-1.0 (default: random 0.3-1.0)")
+    parser.add_argument("--cutoff", type=float,
+                        help="Lowpass filter cutoff in Hz (default: random 200-8000)")
+    parser.add_argument("--mod-rate", type=float,
+                        help="LFO modulation rate in Hz (default: random 0.5-10)")
+    parser.add_argument("--mod-depth", type=float,
+                        help="Modulation depth 0.0-1.0 (default: random 0.0-1.0)")
     args = parser.parse_args()
 
-    generate_batch(count=args.count, seed=args.seed)
+    overrides = {}
+    if args.noise is not None:
+        overrides["noise_type"] = args.noise
+    if args.freq is not None:
+        overrides["base_frequency"] = args.freq
+    if args.duration is not None:
+        overrides["duration"] = args.duration
+    if args.amplitude is not None:
+        overrides["amplitude"] = args.amplitude
+    if args.cutoff is not None:
+        overrides["filter_cutoff"] = args.cutoff
+    if args.mod_rate is not None:
+        overrides["mod_rate"] = args.mod_rate
+    if args.mod_depth is not None:
+        overrides["mod_depth"] = args.mod_depth
+
+    generate_batch(count=args.count, seed=args.seed,
+                   overrides=overrides if overrides else None)
